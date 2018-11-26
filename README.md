@@ -43,22 +43,22 @@ end2end test on with term_api running on this terminal, run curl on another term
  ubuntu01->cd test
  ubuntu01->ls
 curl.scr  makefile  test_func.c
- ubuntu01->bash -x curl.scr
-+ curl -X POST -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals
-16+ echo
-
-+ sleep 1
-+ curl -X GET http://localhost:8888/terminals/15
-{"terminalID":15;"TransactionType":"Credit","cardType":"Visa"}+ sleep 1
-+ echo
-
-+ curl -X GET http://localhost:8888/terminals/35
-{"terminalID":35;"TransactionType":"Credit","cardType":"Visa"}+ sleep 1
-+ echo
-
-+ curl -X GET http://localhost:8888/terminals
-{4 8 19 20 40}+ sleep 1
-+ echo
+ ubuntu01->bash -x curl.scr  
++ curl -X POST -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals  
+16+ echo  
+  
++ sleep 1  
++ curl -X GET http://localhost:8888/terminals/15  
+{"terminalID":15;"TransactionType":"Credit","cardType":"Visa"}+ sleep 1  
++ echo  
+  
++ curl -X GET http://localhost:8888/terminals/35  
+{"terminalID":35;"TransactionType":"Credit","cardType":"Visa"}+ sleep 1  
++ echo  
+  
++ curl -X GET http://localhost:8888/terminals   
+{4 8 19 20 40}+ sleep 1  
++ echo  
 
 unit/fucntion test(take parse_json() as example): 
 ----------------------------------------------------------------
