@@ -33,9 +33,9 @@ make BLD : build final executable term_api.
 make UT: build executable test/UTfuncs for unit testing.  
 make clean_all: clean up generated sources(by cmock) and all binaries.  
 
-Unit/fucntion test:  
+Unit testing (function level):  
 ----------------------------------------------------------------
-With mock following two functions:  
+Unit testing was done by cmock/unity, with mock following two functions:  
 ubuntu->cat to_do_func.h
 #include "req_handler.h"  
 int struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[]);  
@@ -45,7 +45,7 @@ ubuntu->cd test
 ubuntu->ls
 curl.scr  UTfuncs           UTfuncs_runner_test.o  UTfuncs_ut_test.o
 ERR.log   UTfuncs_runner.c  UTfuncs_ut.c  
-ubuntu->UTfuncs 
+ubuntu->UTfuncs  
 ./test/UTfuncs_ut.c:33:test_query_term_info1:PASS  
 ./test/UTfuncs_ut.c:59:test_query_term_info2:PASS  
 ./test/UTfuncs_ut.c:83:test_query_term_info3:PASS  
