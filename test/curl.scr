@@ -1,0 +1,15 @@
+curl -X POST  -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals
+echo 
+sleep 1
+
+curl -X GET http://localhost:8888/terminals/15
+sleep 1
+echo 
+
+curl -X GET http://localhost:8888/terminals/35
+sleep 1
+echo 
+
+curl -X GET http://localhost:8888/terminals
+sleep 1
+echo 
