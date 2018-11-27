@@ -24,7 +24,7 @@ term_svr.h
 test  
 to_do_func.c  
 to_do_func.h  
-test/UTfuncs_ut.c
+test/UTfuncs_ut.c  
 test/curl.scr
 
 make commands:
@@ -36,7 +36,7 @@ make clean_all: clean up generated sources(by cmock) and all binaries.
 Unit testing (function level):  
 ----------------------------------------------------------------
 Unit testing was done by cmock/unity, with mock following two functions:  
-ubuntu->cat to_do_func.h
+ubuntu->cat to_do_func.h  
 #include "req_handler.h"  
 int struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[]);  
 int query_db(int id, struct terminal_info_struct *tm_db_ptr);  
