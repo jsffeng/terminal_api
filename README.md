@@ -69,27 +69,32 @@ int struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[]);
 int query_db(int id, struct terminal_info_struct *tm_db_ptr);  
 
 ubuntu->cd test  
-ubuntu->ls
-curl.scr  UTfuncs           UTfuncs_runner_test.o  UTfuncs_ut_test.o
-ERR.log   UTfuncs_runner.c  UTfuncs_ut.c  
+ubuntu->ls  
+curl.scr  system_test.scr  UTfuncs_runner.c       UTfuncs_ut.c  
+ERR.log   UTfuncs          UTfuncs_runner_test.o  UTfuncs_ut_test.o  
 ubuntu->UTfuncs  
-./test/UTfuncs_ut.c:33:test_query_term_info1:PASS  
-./test/UTfuncs_ut.c:59:test_query_term_info2:PASS  
-./test/UTfuncs_ut.c:83:test_query_term_info3:PASS  
-./test/UTfuncs_ut.c:104:test_query_term_info4:PASS  
-./test/UTfuncs_ut.c:130:test_parse_json:PASS  
-./test/UTfuncs_ut.c:151:test_init_db:PASS  
-./test/UTfuncs_ut.c:170:test_insert_db1:PASS  
-./test/UTfuncs_ut.c:197:test_insert_db2:PASS  
-./test/UTfuncs_ut.c:221:test_find_spare_id1:PASS  
-./test/UTfuncs_ut.c:240:test_find_spare_id2:PASS  
-./test/UTfuncs_ut.c:259:test_svr_process_req1:PASS  
-./test/UTfuncs_ut.c:281:test_svr_process_req2:PASS  
-./test/UTfuncs_ut.c:306:test_svr_process_req3:PASS  
-./test/UTfuncs_ut.c:326:test_svr_process_req4:PASS  
-./test/UTfuncs_ut.c:345:test_svr_process_req5:PASS  
-
+./test/UTfuncs_ut.c:31:test_query_term_info1:PASS  
+./test/UTfuncs_ut.c:53:test_query_term_info2:PASS  
+./test/UTfuncs_ut.c:71:test_query_term_info3:PASS  
+./test/UTfuncs_ut.c:87:test_query_term_info4:PASS  
+./test/UTfuncs_ut.c:114:test_parse_json:PASS  
+./test/UTfuncs_ut.c:135:test_init_db:PASS  
+./test/UTfuncs_ut.c:154:test_insert_db1:PASS  
+./test/UTfuncs_ut.c:181:test_insert_db2:PASS  
+./test/UTfuncs_ut.c:205:test_find_spare_id1:PASS  
+./test/UTfuncs_ut.c:224:test_find_spare_id2:PASS  
+./test/UTfuncs_ut.c:243:test_svr_process_req1:PASS  
+./test/UTfuncs_ut.c:265:test_svr_process_req2:PASS  
+./test/UTfuncs_ut.c:290:test_svr_process_req3:PASS  
+./test/UTfuncs_ut.c:310:test_svr_process_req4:PASS  
+./test/UTfuncs_ut.c:329:test_svr_process_req5:PASS  
+./test/UTfuncs_ut.c:347:test_query_db1:PASS  
+./test/UTfuncs_ut.c:369:test_query_db2:PASS  
+./test/UTfuncs_ut.c:382:test_query_db3:PASS  
+./test/UTfuncs_ut.c:397:test_query_term_list1:PASS  
+./test/UTfuncs_ut.c:428:test_query_term_list2:PASS  
+./test/UTfuncs_ut.c:448:test_struct2json:PASS  
+  
 -----------------------  
-15 Tests 0 Failures 0 Ignored  
+21 Tests 0 Failures 0 Ignored  
 OK  
-
