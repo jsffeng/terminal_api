@@ -1,3 +1,30 @@
+This program to provide server service for client request as belows: 
+-------------------------------------------------------------------  
+1. When client sends POST request as the following command does:  
+curl -X POST -d ‘json={"TransactionType":"Credit","cardType":"Visa"}’ http://localhost:8888/terminals  
+
+Server service should take the following actions:   
+  - Assign a terminal ID, and store the data entry into the in-memory array.  
+  - If above succeeds, return the terminal ID, e.g. {16}, to client.  
+  - If there is no available terminal ID to assign, return {}, which means the system is running on the maximum capacity designed.  
+  - Returning empty to client means abnormal error happens on server side.  
+
+2. When the client sends GET request as the following command does:  
+curl -X GET http://localhost:8888/terminals/<id>  
+
+Server service should take the following actions:   
+  - If succeed, return the related Data Entry to Client in JSON format.   
+  - If no Data Entry exists, just return {} to client.  
+  - Returning empty to client means abnormal error happens on server side.  
+
+3. When client sends GET request as the following command does:  
+curl -X GET http://localhost:8888/terminals/  
+
+Server service should take the following actions:   
+  - If succeed, return the terminal ID list to client, e.g. {2 24 35 48 80}.  
+  - If there is no terminal ID in use, return {} to client.  
+  - Returning empty to client means abnormal error happens on server side. 
+
 Current Development Environment (Nov 20,2018): 
 --------------------------
 Linux Version: ubuntu 16.04.01  

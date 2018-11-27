@@ -16,12 +16,16 @@ use 32k or 64k (i.e. 65536). */
 returning a list of terminal IDs  */ 
 #define MAXJSON_INFOSIZE 128
 
-/* valid term id 1-100, 0 not used */
+/* Valid term id 1-100, 0 not used */
 #define MAXTERMID 100
 
-/* 99%  term id have or less than 2 digits, also 
-divided by a blank in the list */ 
-#define TERMLIST_LENGTH 3*MAXTERMID 
+/* The string length to contain 1 terminal id, including '\0' */
+/* Need to re-set this value if  MAXTERMID changed */
+#define ID_CHAR_LENGTH 4
+
+/* Maximum size to store {1 2 3 ...100} is 9x2+90x3+1x4+1 */
+/* Need to recalculate if MAXTERMID changed */
+#define TERMLIST_LENGTH 293
 
 /* TERMID stored in string with format {}, so 7 characters for ID */
 /* If MAXTERMID increased, need to review this length */

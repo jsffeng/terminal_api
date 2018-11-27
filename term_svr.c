@@ -131,7 +131,6 @@ answer_to_connection (void *cls, struct MHD_Connection *connection,
     {
       
       /* Query the list of existing terminals */
-
       ret_vl = query_term_list (gl_term_list);
 
       if (ret_vl)

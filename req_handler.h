@@ -17,6 +17,7 @@ struct terminal_info_struct gl_terminal_info[MAXTERMID];
 extern void init_db();
 extern int svr_process_req (char * input_data, char * resp_data);
 extern int query_term_info(int id, char *term_info);
+extern int query_term_list (char *term_list);
 extern int parse_json(char * p_msg, struct terminal_info_struct *term_info_ptr);
 extern int find_spare_id(int *id_ptr);
 extern int insert_db(struct terminal_info_struct *terminal_info_ptr);

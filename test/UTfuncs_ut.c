@@ -3,11 +3,10 @@
 #include "Mockto_do_func.h"
 #include "req_handler.h"
 
-char TEST_BUF0[MAXJSON_INFOSIZE];
-char TEST_BUF1[MAXJSON_INFOSIZE];
 int call_by_test_svr_process_req3 = 0;
 int call_by_test_svr_process_req4 = 0;
 int call_by_test_svr_process_req5 = 0;
+int call_by_test_query_term_info4 = 0;
 
 const int TEST_USED_ID=14; 
 
@@ -24,26 +23,21 @@ void tearDown(void)
 }
 
 /********************************************************************************
-* Condition: When DB entry exist - used DB entry {15,"Visa","Credit",1} for 	*
-mock function query_db()							*
+* Condition: When DB entry exist - used DB entry {15,"Visa","Credit",1} 	*
 * Input: 15 									*
 * Output: {"terminalID":15,"TransactionType":"Credit","cardType":"Visa"} 	*
 ********************************************************************************/
 
 void test_query_term_info1()
 {
-  struct terminal_info_struct term_db_entry_input={15,"Visa","Credit",1};
-  char term_json_entry_input[]="{\"terminalID\":%d,\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+
   char term_info_output[MAXJSON_INFOSIZE];
   char term_info_expect[]="{\"terminalID\":15,\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
 
-  /* set query_db(), to return 0 */
-  memcpy(TEST_BUF0,&term_db_entry_input, sizeof(term_db_entry_input));
-  query_db_ExpectAndReturn(15, (struct terminal_info_struct *) TEST_BUF0, 0);
-
-  /* set struct2json(), to return 0 */
-  strcpy(TEST_BUF1, term_json_entry_input);
-  struct2json_ExpectAndReturn((struct terminal_info_struct *) TEST_BUF0, TEST_BUF1,0);
+  gl_terminal_info[14].id = 15;
+  strcpy (gl_terminal_info[14].card_type, "\"Visa\"");
+  strcpy (gl_terminal_info[14].transaction_type, "\"Credit\"");
+  gl_terminal_info[14].flag = 1;
 
   TEST_ASSERT_EQUAL(0, query_term_info(15, term_info_output)); 
 
@@ -62,36 +56,25 @@ void test_query_term_info2()
   char term_info_output[MAXJSON_INFOSIZE];
   char term_info_expect[]="{}";
 
-  /* set query_db(), to return 1 */
-  query_db_ExpectAndReturn(15, (struct terminal_info_struct *) TEST_BUF0, 1);
-
-  /* set struct2json(), to return 0 */
-  strcpy(TEST_BUF1, term_json_entry_input);
-  struct2json_ExpectAndReturn((struct terminal_info_struct *) NULL, TEST_BUF1,0);
-
   TEST_ASSERT_EQUAL(0, query_term_info(15, term_info_output)); 
 
   TEST_ASSERT_EQUAL_STRING (term_info_expect, term_info_output);
 }
 
+
 /********************************************************************************
 * Condition: When query_db() fails						*
-* Input: 15 									*
+* Input: 150 									*
 * Output: Function returns with non zero value	 				*
 ********************************************************************************/
 
 void test_query_term_info3()
 {
-  struct terminal_info_struct term_db_entry_input={15,"Visa","Credit",1};
-  char term_json_entry_input[]="{\"terminalID\":%d;\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
   char term_info_output[MAXJSON_INFOSIZE];
-  char term_info_expect[]="{\"terminalID\":15;\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
 
-  /* set query_db(), to return 2 */
-  memcpy(TEST_BUF0,&term_db_entry_input, sizeof(term_db_entry_input));
-  query_db_ExpectAndReturn(15, (struct terminal_info_struct *) TEST_BUF0, 2);
+  /* query_db() should return 2 for out of range terminal ID */
 
-  TEST_ASSERT_NOT_EQUAL(0, query_term_info(15, term_info_output)); 
+  TEST_ASSERT_NOT_EQUAL(0, query_term_info(150, term_info_output)); 
 
 }
 
@@ -103,20 +86,21 @@ void test_query_term_info3()
 
 void test_query_term_info4()
 {
-  struct terminal_info_struct term_db_entry_input={15,"Visa","Credit",1};
   char term_json_entry_input[]="{\"terminalID\":%d;\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
   char term_info_output[MAXJSON_INFOSIZE];
-  char term_info_expect[]="{\"terminalID\":15;\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
 
-  /* set query_db(), to return 0 */
-  memcpy(TEST_BUF0,&term_db_entry_input, sizeof(term_db_entry_input));
-  query_db_ExpectAndReturn(15, (struct terminal_info_struct *) TEST_BUF0, 0);
+  /* set data to let query_db() return 0 */
+  gl_terminal_info[14].id = 15;
+  strcpy (gl_terminal_info[14].card_type, "\"Visa\"");
+  strcpy (gl_terminal_info[14].transaction_type, "\"Credit\"");
+  gl_terminal_info[14].flag = 1;
 
-  /* set struct2json(), to return 1 */
-  strcpy(TEST_BUF1, term_json_entry_input);
-  struct2json_ExpectAndReturn((struct terminal_info_struct *) TEST_BUF0, TEST_BUF1,1);
+  /* when struct2json() return 1 */
+  call_by_test_query_term_info4 = 1;
 
   TEST_ASSERT_NOT_EQUAL(0, query_term_info(15, term_info_output)); 
+
+  call_by_test_query_term_info4 = 0;
 
 }
 
@@ -352,4 +336,122 @@ void test_svr_process_req5()
   TEST_ASSERT_EQUAL(1, svr_process_req(term_json_entry_input,tm_id)); 
 
   call_by_test_svr_process_req5 = 0;
+}
+
+/********************************************************************************
+* Condition: When terminal ID found in DB 					*
+* Input: 15 									*
+* Output: 								 	*
+*        Data structure responded					 	*
+********************************************************************************/
+void test_query_db1()
+{
+  struct terminal_info_struct term_db_entry_input;
+  
+  /* set data for query_db() use */
+  gl_terminal_info[14].id = 15;
+  strcpy (gl_terminal_info[14].card_type, "\"Visa\"");
+  strcpy (gl_terminal_info[14].transaction_type, "\"Credit\"");
+  gl_terminal_info[14].flag = 1;
+
+  TEST_ASSERT_EQUAL(0, query_db(15, &term_db_entry_input)); 
+
+  TEST_ASSERT_EQUAL_MEMORY (&gl_terminal_info[14], &term_db_entry_input, sizeof(struct terminal_info_struct));
+  
+}
+
+/********************************************************************************
+* Condition: When terminal ID not found in DB 					*
+* Input: 15 									*
+* Output: 								 	*
+*        return 1 							 	*
+********************************************************************************/
+void test_query_db2()
+{
+  struct terminal_info_struct term_db_entry_input;
+  
+  TEST_ASSERT_EQUAL(1, query_db(15, &term_db_entry_input)); 
+}
+
+/********************************************************************************
+* Condition: When requested terminal ID out of range 				*
+* Input: 0,150,-1 								*
+* Output: 								 	*
+*        return 2 							 	*
+********************************************************************************/
+void test_query_db3()
+{
+  struct terminal_info_struct term_db_entry_input;
+  
+  TEST_ASSERT_EQUAL(2, query_db(0, &term_db_entry_input)); 
+  TEST_ASSERT_EQUAL(2, query_db(150, &term_db_entry_input)); 
+  TEST_ASSERT_EQUAL(2, query_db(-1, &term_db_entry_input)); 
+}
+
+/********************************************************************************
+* Condition: When terminal IDs found in DB 					*
+* Input: N/A									*
+* Output: 								 	*
+*        The list of terminal IDs, e.g. "{81 84 87 90}"				* 
+********************************************************************************/
+void test_query_term_list1()
+{
+  char term_list_output[TERMLIST_LENGTH];
+  char term_list_expect[TERMLIST_LENGTH] = "{81 84 87 90}";
+  int i;
+  
+  /* set data for query_db() use */
+  init_db();
+
+  i = 80;
+  while (i < 90)
+  {
+    gl_terminal_info[i].id = i + 1;
+    strcpy (gl_terminal_info[14].card_type, "\"Visa\"");
+    strcpy (gl_terminal_info[14].transaction_type, "\"Credit\"");
+    gl_terminal_info[i].flag = 1;
+    i = i + 3; 
+  }
+
+  TEST_ASSERT_EQUAL(0, query_term_list(term_list_output)); 
+
+  TEST_ASSERT_EQUAL_STRING (term_list_expect, term_list_output);
+  
+}
+
+/********************************************************************************
+* Condition: When no terminal IDs assigned in DB				*
+* Input: N/A									*
+* Output: 								 	*
+*        Empty terminal ID list as "{}"						*
+********************************************************************************/
+void test_query_term_list2()
+{
+  char term_list_output[TERMLIST_LENGTH];
+  char term_list_expect[TERMLIST_LENGTH] = "{}";
+  
+  /* set data for query_db() use */
+  init_db();
+
+  TEST_ASSERT_EQUAL(0, query_term_list(term_list_output)); 
+
+  TEST_ASSERT_EQUAL_STRING (term_list_expect, term_list_output);
+  
+}
+
+/********************************************************************************
+* Input: {15,"Visa","Credit",1} 						*	
+* Output: 								 	*
+*	{"terminalID":15,"TransactionType":"Credit","cardType":"Visa"}		*
+********************************************************************************/
+
+void test_struct2json()
+{
+  struct terminal_info_struct term_db_entry_input={15,"\"Visa\"","\"Credit\"",1};
+  char term_info_output[MAXJSON_INFOSIZE];
+  char term_info_expect[]="{\"terminalID\":15,\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+
+  TEST_ASSERT_EQUAL(0, struct2json(&term_db_entry_input, term_info_output)); 
+
+  TEST_ASSERT_EQUAL_STRING (term_info_expect,term_info_output );
 }

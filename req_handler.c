@@ -6,9 +6,8 @@
 #include "req_handler.h"
 
 #ifdef UTFLAG 
-extern char TEST_BUF0[MAXJSON_INFOSIZE];
-extern char TEST_BUF1[MAXJSON_INFOSIZE];
 extern int call_by_test_svr_process_req3;
+extern int call_by_test_query_term_info4;
 #endif
 
 /************************************************************************
@@ -30,7 +29,7 @@ svr_process_req (char * input_data, char * resp_data)
 {
   int id=0; 
   int ret_val;
-  char id_char[TERMID_LENGTH];
+  char id_char[TERMID_LENGTH] = "";
   struct terminal_info_struct l_terminal_info;
 
   /* For unit testing, intialize l_terminal_info so as to quickly compare with expected
@@ -61,7 +60,7 @@ svr_process_req (char * input_data, char * resp_data)
     l_terminal_info.id = id;
     l_terminal_info.flag = 1;
    	
-    sprintf(id_char,"{%d}",id);
+    snprintf(id_char,TERMID_LENGTH,"{%d}",id);
     if (insert_db(&l_terminal_info) != 0)
     {  
       ERRLOG ("unexpected return value.");
@@ -70,7 +69,7 @@ svr_process_req (char * input_data, char * resp_data)
   }
   else
   {
-    sprintf(id_char,"{}");
+    strncpy(id_char,"{}",3);
   }
  
   snprintf (resp_data, TERMID_LENGTH, "%s", id_char);
@@ -95,68 +94,82 @@ query_term_info (int id, char *term_info)
 {
   struct terminal_info_struct term_db_entry; 
   struct terminal_info_struct *term_db_ptr; 
-  char term_json_entry[MAXJSON_INFOSIZE];
+  char term_json_entry[MAXJSON_INFOSIZE] = "";
   char *term_json_ptr;
   int ret_val;
 
-  #ifdef UTFLAG 
-  /*
-    printf("TEST_BUF0->card_type is %s\n", ((struct terminal_info_struct *) TEST_BUF0)->card_type);
-  */
-  term_db_ptr = (struct terminal_info_struct *) TEST_BUF0;	 
-  #else
   term_db_ptr = &term_db_entry;	 
-  #endif
+  term_json_ptr = term_json_entry;	
 
   ret_val=query_db(id, term_db_ptr);
 
-  if (ret_val == 1) 
+  if (ret_val == 0)
   {
-  /* if id no found in DB */ 
-  /* term_db_ptr is NULL */
-    term_db_ptr = NULL;
-  }
-  else if (ret_val)
-  {
-    ERRLOG ("unexpected return value.");
-    return 1;
-  }
-   
-  #ifdef UTFLAG 
-  term_json_ptr = TEST_BUF1;
-  #else
-  term_json_ptr = term_json_entry;	
-  #endif
-
-  /* if term_db_ptr is NULL, term_json_ptr pointed to "{}"; */
-  ret_val=struct2json((struct terminal_info_struct *)term_db_ptr, term_json_ptr);
+    ret_val=struct2json((struct terminal_info_struct *)term_db_ptr, term_json_ptr);
   
-  if (ret_val) 
+    if (ret_val) 
+    {
+      ERRLOG ("unexpected return value.");
+      return 1;
+    }
+  }
+  else if (ret_val == 1) 
+  {
+  /* if id no found in DB, let term_json_ptr pointed to "{}" */ 
+    strncpy(term_json_ptr, "{}",3); 
+  }
+  else 
   {
     ERRLOG ("unexpected return value.");
     return 1;
   }
-
-  if ( term_db_ptr == NULL ) 
-  {
-    strcpy(term_info, term_json_ptr); 
-  }
-  else
-    snprintf(term_info, MAXJSON_INFOSIZE,term_json_ptr, id); 
+ 
+  snprintf(term_info, MAXJSON_INFOSIZE,"%s",term_json_ptr); 
         
   return 0; 
 }
 
+/************************************************************************
+* Respond all assigned terminal IDs in DB.		 		*
+*									*
+* Parameter examples:							*
+* 	if found, term_list popluated, e.g. "{2 4 5 10}"		*
+* 	if not found, term_list popluated as "{}"			*
+*									*
+* Return values:							*
+* 	if succeeds, return 0						*
+* 	if abormal error, return 1 (not used so far)			*
+************************************************************************/
 
 int
 query_term_list (char *term_list)
 {
-  char list_t[] = "{4 8 19 20 40}"; /* hard-code for prototype */
-  /* if  no term ID in use */
-  /* char list_[] = "{}" */
-  printf("prototype query_term_list\n");
+  int id;
+  int first_flag = 0;
+  char id_str[ID_CHAR_LENGTH] = "";
+  strncpy (term_list,"{",2);
+
+  for (int i=0;i < MAXTERMID; i++)
+  {
+    if (gl_terminal_info[i].flag == 1)
+    {
+      if (first_flag == 0)
+      {
+        snprintf(id_str,ID_CHAR_LENGTH, "%d", gl_terminal_info[i].id);
+        strncat(term_list, id_str, strlen(id_str));
+        first_flag = 1;
+      }
+      else
+      {
+        snprintf(id_str,ID_CHAR_LENGTH, "%d", gl_terminal_info[i].id);
+        strncat(term_list, " ", 1);
+        strncat(term_list, id_str, strlen(id_str));
+      }
+    }
+  }
   
-  snprintf (term_list, TERMLIST_LENGTH, "%s", list_t); 
+  strncat(term_list, "}", 1);
+ 
   return 0; 
 }
 
@@ -211,3 +224,45 @@ int parse_json(char * p_msg, struct terminal_info_struct *term_info_ptr)
     return 0;
   #endif
 }
+
+/************************************************************************
+* Convert data structure in DB to string in json format. 		*
+*									*
+* Parameter examples:							*
+* 	tm_db_ptr point to data like {15,"Visa","Credit",1}		*
+*	tm_json[] contains string like:					*
+*	{"terminalID":15,"TransactionType":"Credit","cardType":"Visa"}	*
+* Return values:							*
+* 	if succeeds, return 0						*
+* 	if abormal error, return 1 (not used so far)			*
+************************************************************************/
+int
+struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[])
+{
+
+  char id_str[ID_CHAR_LENGTH] = "";
+  
+  strncpy (tm_json,"{\"terminalID\":",15);
+  snprintf(id_str,ID_CHAR_LENGTH, "%d",tm_db_ptr->id);
+  strncat(tm_json, id_str, strlen(id_str));
+  
+  strncat(tm_json, ",\"TransactionType\":",19);
+  strncat(tm_json, tm_db_ptr->transaction_type, strlen(tm_db_ptr->transaction_type));
+
+  strncat(tm_json, ",\"cardType\":",12);
+  strncat(tm_json, tm_db_ptr->card_type, strlen(tm_db_ptr->card_type));
+
+  strncat(tm_json, "}",1);
+
+  #ifdef UTFLAG
+  if ( call_by_test_query_term_info4 )
+  /* This is for unit testing */
+    return 1;
+  else
+    return 0;
+  #else
+    return 0;
+  #endif
+
+}
+

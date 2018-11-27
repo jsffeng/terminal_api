@@ -88,25 +88,42 @@ insert_db(struct terminal_info_struct *terminal_info_ptr)
 }
 
 /* Init all members with 0 or NULL for global array gl_terminal_info[MAXTERMID] */
-
-/* 
-void
-init_db()
-{
-  for (int i=0;i < MAXTERMID; i++)
-  {
-    gl_terminal_info[i].id = 0;
-    gl_terminal_info[i].flag = 0;
-    for (int j=0; j<CARD_NAME_LENGTH; j++)	
-      gl_terminal_info[i].card_type[j]='\0';
-    for (int j=0; j<TRANS_NAME_LENGTH; j++)
-      gl_terminal_info[i].transaction_type[j]='\0';
-  }  
-}
-*/
-
 void
 init_db()
 {
    memset(&gl_terminal_info[0],0,sizeof(gl_terminal_info));
 }
+
+/* return 0, id found in DB */
+/* return 1, id no found in DB , this could happen when client send a wrong id */
+/* return 2, abormal errors when query DB */
+int
+query_db(int id, struct terminal_info_struct *tm_db_ptr)
+{
+  int found = 0;
+
+  if ( id <= 0 || id > MAXTERMID )
+  {
+    ERRLOG ("invalid terminal ID.");
+    return 2;
+  }
+
+  for (int i=0;i < MAXTERMID; i++)
+  {
+     if (gl_terminal_info[i].id == id ) 
+     { 
+       memcpy(tm_db_ptr, &gl_terminal_info[i], sizeof(struct terminal_info_struct));
+       found = 1;
+       break;
+     }
+  }
+
+  if (found == 1)
+    return 0;
+  else
+  {
+    ERRLOG ("requested terminal ID not found in DB.");
+    return 1;
+  }
+}
+

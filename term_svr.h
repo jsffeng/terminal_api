@@ -4,12 +4,12 @@
 #include "global.h"
 
 /* Global variable used to store string sent back to clients */
-char gl_term_list[TERMLIST_LENGTH];
-char gl_term_info[MAXJSON_INFOSIZE];
+char gl_term_list[TERMLIST_LENGTH] = "";
+char gl_term_info[MAXJSON_INFOSIZE] = "";
 
 /* TERMID stored in string with format {}, so 7 characters for ID */
 /* If MAXTERMID increased, need to review this length */
-char gl_tm_id[TERMID_LENGTH];
+char gl_tm_id[TERMID_LENGTH] = "";
 
 struct connection_info_struct
 {
