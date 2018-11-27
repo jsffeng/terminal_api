@@ -52,7 +52,7 @@ test
 to_do_func.c  
 to_do_func.h  
 test/UTfuncs_ut.c  
-test/curl.scr
+test/system_test.scr
 
 make commands:
 -------------------------
