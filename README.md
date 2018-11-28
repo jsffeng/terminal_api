@@ -7,7 +7,6 @@ Server service should take the following actions:
   - If above succeeds, return the terminal ID, e.g. {16}, to client.  
   - If there is no available terminal ID to assign, return {}, which means the system is running on the maximum capacity designed.  
   - Returning empty to client means abnormal error happens on server side.  
-  
 Input data in JSON format:   
 {   
         “cardType”: [  
@@ -20,7 +19,7 @@ Input data in JSON format:
         “Savings”,  
         “Credit”  
     ]   
-}  
+  
   
 2. When the client sends GET request as the following command does:  
 curl -X GET http://localhost:8888/terminals/<id>  
