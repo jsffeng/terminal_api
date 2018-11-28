@@ -29,7 +29,6 @@ Server service should take the following actions:
 	{"terminalID":15,"transactions":{"cardType":"Visa","TransactionType":"Credit"}}
   - If no Data Entry exists, just return {} to client.  
   - Returning empty to client means abnormal error happens on server side.  
-  
 Output data in JSON format:   
 {  
      "terminalID": 1,  
@@ -47,7 +46,6 @@ Output data in JSON format:
   
 3. When client sends GET request as the following command does:  
 curl -X GET http://localhost:8888/terminals/  
-  
 Server service should take the following actions:   
   - If succeed, return the terminal ID list to client, e.g. {2 24 35 48 80}.  
   - If there is no terminal ID in use, return {} to client.  
