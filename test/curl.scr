@@ -1,4 +1,5 @@
-curl -X POST  -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals
+curl -X POST  -d 'json={"cardType":"Visa","TransactionType":"Credit"}' http://localhost:8888/terminals
+
 echo 
 sleep 1
 
