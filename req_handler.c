@@ -231,7 +231,8 @@ int parse_json(char * p_msg, struct terminal_info_struct *term_info_ptr)
 * Parameter examples:							*
 * 	tm_db_ptr point to data like {15,"Visa","Credit",1}		*
 *	tm_json[] contains string like:					*
-*	{"terminalID":15,"TransactionType":"Credit","cardType":"Visa"}	*
+*	  {"terminalID":15,"transactions":				*
+*	    {"cardType":"Visa","TransactionType":"Credit"}}		*
 * Return values:							*
 * 	if succeeds, return 0						*
 * 	if abormal error, return 1 (not used so far)			*
@@ -246,13 +247,14 @@ struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[])
   snprintf(id_str,ID_CHAR_LENGTH, "%d",tm_db_ptr->id);
   strncat(tm_json, id_str, strlen(id_str));
   
+  strncat(tm_json, ",\"transactions\":{\"cardType\":",28);
+  strncat(tm_json, tm_db_ptr->card_type, strlen(tm_db_ptr->card_type));
+
   strncat(tm_json, ",\"TransactionType\":",19);
   strncat(tm_json, tm_db_ptr->transaction_type, strlen(tm_db_ptr->transaction_type));
 
-  strncat(tm_json, ",\"cardType\":",12);
-  strncat(tm_json, tm_db_ptr->card_type, strlen(tm_db_ptr->card_type));
 
-  strncat(tm_json, "}",1);
+  strncat(tm_json, "}}",2);
 
   #ifdef UTFLAG
   if ( call_by_test_query_term_info4 )

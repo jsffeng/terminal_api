@@ -12,8 +12,7 @@ use 32k or 64k (i.e. 65536). */
 
 #define POSTBUFFERSIZE 512 
 
-/* Regular json message less than 64 bytes, except when 
-returning a list of terminal IDs  */ 
+/* Output JSON messages should be less than 90 bytes if no blank */
 #define MAXJSON_INFOSIZE 128
 
 /* Valid term id 1-100, 0 not used */

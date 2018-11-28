@@ -1,30 +1,59 @@
-This program to provide server service for client request as belows: 
+A RESTful API server to handle client/terminal request as belows: 
 -------------------------------------------------------------------  
 1. When client sends POST request as the following command does:  
-curl -X POST -d ‘json={"TransactionType":"Credit","cardType":"Visa"}’ http://localhost:8888/terminals  
-
+curl -X POST -d ‘json={"cardType":"Visa","TransactionType":"Credit"}’ http://localhost:8888/terminals  
 Server service should take the following actions:   
-  - Assign a terminal ID, and store the data entry into the in-memory array.  
+  - Assign a terminal ID, and store the input data entry into the in-memory array.  
   - If above succeeds, return the terminal ID, e.g. {16}, to client.  
   - If there is no available terminal ID to assign, return {}, which means the system is running on the maximum capacity designed.  
   - Returning empty to client means abnormal error happens on server side.  
-
+  
+Input data in JSON format:   
+{   
+        “cardType”: [  
+        “Visa”,  
+        “MasterCard”,  
+        "EFTPOS”  
+    ],  
+        “TransactionType”: [  
+        “Cheque”,  
+        “Savings”,  
+        “Credit”  
+    ]   
+}  
+  
 2. When the client sends GET request as the following command does:  
 curl -X GET http://localhost:8888/terminals/<id>  
-
+  
 Server service should take the following actions:   
-  - If succeed, return the related Data Entry to Client in JSON format.   
+  - If succeed, return the output data entry to Client in JSON format, e.g.
+	{"terminalID":15,"transactions":{"cardType":"Visa","TransactionType":"Credit"}}
   - If no Data Entry exists, just return {} to client.  
   - Returning empty to client means abnormal error happens on server side.  
-
+  
+Output data in JSON format:   
+{  
+     "terminalID": 1,  
+     "transactions": [  
+     {  
+          "cardType": "Visa",  
+          "TransactionType": "Credit"  
+     },  
+     {  
+          "cardType": "EFTPOS",  
+          "TransactionType": "Savings"  
+     }  
+     ]  
+}  
+  
 3. When client sends GET request as the following command does:  
 curl -X GET http://localhost:8888/terminals/  
-
+  
 Server service should take the following actions:   
   - If succeed, return the terminal ID list to client, e.g. {2 24 35 48 80}.  
   - If there is no terminal ID in use, return {} to client.  
   - Returning empty to client means abnormal error happens on server side. 
-
+   
 Current Development Environment (Nov 20,2018): 
 --------------------------
 Linux Version: ubuntu 16.04.01  
@@ -37,8 +66,9 @@ sudo apt install libmicrohttpd-dev
 sudo apt install curl  
 complied and install cJSON  
 download cmock from  https://github.com/ThrowTheSwitch/CMock   
+sudo apt install expect
 
-Source code:  
+Source list:  
 ------------------------- 
 db_api.c  
 global.h  
@@ -73,10 +103,10 @@ ubuntu->ls
 curl.scr  system_test.scr  UTfuncs_runner.c       UTfuncs_ut.c  
 ERR.log   UTfuncs          UTfuncs_runner_test.o  UTfuncs_ut_test.o  
 ubuntu->UTfuncs  
-./test/UTfuncs_ut.c:31:test_query_term_info1:PASS  
-./test/UTfuncs_ut.c:53:test_query_term_info2:PASS  
-./test/UTfuncs_ut.c:71:test_query_term_info3:PASS  
-./test/UTfuncs_ut.c:87:test_query_term_info4:PASS  
+./test/UTfuncs_ut.c:32:test_query_term_info1:PASS  
+./test/UTfuncs_ut.c:54:test_query_term_info2:PASS  
+./test/UTfuncs_ut.c:72:test_query_term_info3:PASS  
+./test/UTfuncs_ut.c:88:test_query_term_info4:PASS  
 ./test/UTfuncs_ut.c:114:test_parse_json:PASS  
 ./test/UTfuncs_ut.c:135:test_init_db:PASS  
 ./test/UTfuncs_ut.c:154:test_insert_db1:PASS  
@@ -94,7 +124,7 @@ ubuntu->UTfuncs
 ./test/UTfuncs_ut.c:397:test_query_term_list1:PASS  
 ./test/UTfuncs_ut.c:428:test_query_term_list2:PASS  
 ./test/UTfuncs_ut.c:448:test_struct2json:PASS  
-  
+   
 -----------------------  
 21 Tests 0 Failures 0 Ignored  
 OK  

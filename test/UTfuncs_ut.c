@@ -25,14 +25,15 @@ void tearDown(void)
 /********************************************************************************
 * Condition: When DB entry exist - used DB entry {15,"Visa","Credit",1} 	*
 * Input: 15 									*
-* Output: {"terminalID":15,"TransactionType":"Credit","cardType":"Visa"} 	*
+* Output: {"terminalID":15,"transactions":					*
+*    	    {"cardType":"Visa","TransactionType":"Credit"}}			*
 ********************************************************************************/
 
 void test_query_term_info1()
 {
 
   char term_info_output[MAXJSON_INFOSIZE];
-  char term_info_expect[]="{\"terminalID\":15,\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_info_expect[]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}";
 
   gl_terminal_info[14].id = 15;
   strcpy (gl_terminal_info[14].card_type, "\"Visa\"");
@@ -86,7 +87,6 @@ void test_query_term_info3()
 
 void test_query_term_info4()
 {
-  char term_json_entry_input[]="{\"terminalID\":%d;\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
   char term_info_output[MAXJSON_INFOSIZE];
 
   /* set data to let query_db() return 0 */
@@ -105,7 +105,7 @@ void test_query_term_info4()
 }
 
 /********************************************************************************
-* Input: {"TransactionType":"Credit","cardType":"Visa"} 			*	
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output: 								 	*
 *       term_info_ptr->card_type: "Visa" 					*
 *       term_info_ptr->transaction_type: "Credit"				*
@@ -113,7 +113,7 @@ void test_query_term_info4()
 
 void test_parse_json()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   struct terminal_info_struct term_db_entry_input={0,"","",0};
   struct terminal_info_struct term_db_entry_expect={0,"\"Visa\"","\"Credit\"",0};
 
@@ -235,14 +235,14 @@ void test_find_spare_id2()
 
 /********************************************************************************
 * Condition: When a terminal ID assigned successfully        			*
-* Input: {"TransactionType":"Credit","cardType":"Visa"}				*
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output:									* 
 * 	id {15}	was assigned & responded 					*
 *	{15,"\"Visa\"","\"Credit\"",1} inserted into DB			 	* 
 ********************************************************************************/
 void test_svr_process_req1()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   struct terminal_info_struct term_db_entry_expect={15,"\"Visa\"","\"Credit\"",1};
   char tm_id[TERMID_LENGTH];
  
@@ -257,14 +257,14 @@ void test_svr_process_req1()
 
 /********************************************************************************
 * Condition: when no available terminal ID slot to assign  		*
-* Input: {"TransactionType":"Credit","cardType":"Visa"}				*
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output:									* 
 * 	id {}	was responded		 					*
 *	No update to DB							 	* 
 ********************************************************************************/
 void test_svr_process_req2()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   struct terminal_info_struct term_db_entry_expect={0,"","",1};
   char tm_id[TERMID_LENGTH];
  
@@ -283,13 +283,13 @@ void test_svr_process_req2()
 
 /********************************************************************************
 * Condition: when parse_json() fails 						*
-* Input: {"TransactionType":"Credit","cardType":"Visa"}				*
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output:									* 
 *	return 1								*
 ********************************************************************************/
 void test_svr_process_req3()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   char tm_id[TERMID_LENGTH];
  
   call_by_test_svr_process_req3 = 1;
@@ -302,14 +302,14 @@ void test_svr_process_req3()
 
 
 /********************************************************************************
-* Condition: when find_spare_id() fails 						*
-* Input: {"TransactionType":"Credit","cardType":"Visa"}				*
+* Condition: when find_spare_id() fails 					*
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output:									* 
 *	return 1								*
 ********************************************************************************/
 void test_svr_process_req4()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   char tm_id[TERMID_LENGTH];
  
   call_by_test_svr_process_req4 = 1;
@@ -322,13 +322,13 @@ void test_svr_process_req4()
 
 /********************************************************************************
 * Condition: when insert_db() fails 						*
-* Input: {"TransactionType":"Credit","cardType":"Visa"}				*
+* Input: {"cardType":"Visa","TransactionType":"Credit"} 			*
 * Output:									* 
 *	return 1								*
 ********************************************************************************/
 void test_svr_process_req5()
 {
-  char term_json_entry_input[]="{\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   char tm_id[TERMID_LENGTH];
  
   call_by_test_svr_process_req5 = 1;
@@ -441,15 +441,15 @@ void test_query_term_list2()
 
 /********************************************************************************
 * Input: {15,"Visa","Credit",1} 						*	
-* Output: 								 	*
-*	{"terminalID":15,"TransactionType":"Credit","cardType":"Visa"}		*
+* Output: {"terminalID":15,"transactions":					*
+*    	    {"cardType":"Visa","TransactionType":"Credit"}}			*
 ********************************************************************************/
 
 void test_struct2json()
 {
   struct terminal_info_struct term_db_entry_input={15,"\"Visa\"","\"Credit\"",1};
   char term_info_output[MAXJSON_INFOSIZE];
-  char term_info_expect[]="{\"terminalID\":15,\"TransactionType\":\"Credit\",\"cardType\":\"Visa\"}";
+  char term_info_expect[]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}";
 
   TEST_ASSERT_EQUAL(0, struct2json(&term_db_entry_input, term_info_output)); 
 
