@@ -81,8 +81,8 @@ test/system_test.scr
 make commands:  
 --------------  
 Run make commmand in current directory.  
-make BLD : create final executable term_api.  
-make UT: create executable UTfuncs under test directory for unit testing.  
+make BLD : create final executable "term_api".  
+make UT: create executable "UTfuncs" under test directory for unit testing.  
 make clean_all: clean up generated sources(by cmock) and all binaries in current directory and test directory.  
 
 Logging:  
