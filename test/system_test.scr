@@ -2,36 +2,93 @@
 
 function init_db1
 {
-	INIT_CMD=$(curl_cmd POST)
-
  	declare -i i=0
+
 	while (( i < 14 ))
 	do
+		if (( i%3 == 0))
+		then
+			INIT_CMD=$(curl_cmd POST1)
+		elif ((i%3 == 1))
+		then
+			INIT_CMD=$(curl_cmd POST2)
+		else
+			INIT_CMD=$(curl_cmd POST3)
+		fi
+
 	        eval ${INIT_CMD} >/dev/null 2>&1
 		if [[ $? != 0 ]]
 		then
 			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
 			exit 1
 		fi
+
 		((i=i+1))
 	done
 }
 
 function init_db2
 {
-	INIT_CMD=$(curl_cmd POST)
-
  	declare -i i=0
 	while (( i < 100 ))
 	do
+		if (( i%3 == 0))
+		then
+			INIT_CMD=$(curl_cmd POST1)
+		elif ((i%3 == 1))
+		then
+			INIT_CMD=$(curl_cmd POST2)
+		else
+			INIT_CMD=$(curl_cmd POST3)
+		fi
+
 	        eval ${INIT_CMD} >/dev/null 2>&1
 		if [[ $? != 0 ]]
 		then
 			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
 			exit 1
+
 		fi
+
 		((i=i+1))
 	done
+}
+
+function curl_cmd
+{
+	CURL_CMD=""
+	if [[ $1 == POST* ]]
+	then
+
+		if [[ $1 == POST1 ]]
+		then
+			# When $2 not empty, means bad data
+			POST_JSON="json={\"cardType\":\"Visa\",\"${2}TransactionType\":\"Credit\"}"
+		elif [[ $1 == POST2 ]]
+		then
+			# When $2 not empty, means bad data
+			POST_JSON="json={\"${2}cardType\":\"EFTPOS\",\"TransactionType\":\"Savings\"}"
+		else
+		# POST3
+			# When $2 not empty, means bad data
+			POST_JSON="json={\"card${2}Type\":\"MasterCard\",\"TransactionType\":\"Credit\"}"
+		fi
+
+		CURL_CMD="curl -X POST -d '${POST_JSON}' http://localhost:8888/terminals"
+
+	elif [[ $1 == GET ]]
+	then
+		if [[ -z $2 ]]
+		then
+			CURL_CMD="curl -X GET http://localhost:8888/terminals"
+		else
+			CURL_CMD="curl -X GET http://localhost:8888/terminals/{$2}"
+		fi
+	else
+		exit 1
+	fi
+
+	echo "${CURL_CMD}"
 }
 
 function run_testcase
@@ -63,63 +120,105 @@ function run_testcase
 	fi
 }
 
-function curl_cmd
-{
-	CURL_CMD=""
-	if [[ $1 == POST ]]
-	then
-		CURL_CMD="curl -X POST  -d 'json={\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}' http://localhost:8888/terminals"
-	elif [[ $1 == GET ]]
-	then
-		if [[ -z $2 ]]
-		then
-			CURL_CMD="curl -X GET http://localhost:8888/terminals"
-		else
-			CURL_CMD="curl -X GET http://localhost:8888/terminals/{$2}"
-		fi
-	else
-		exit 1
-	fi
-
-	echo "${CURL_CMD}"
-}
+############### Main Program Start Here ###############
 
 TESTLOG=./System_test.log
 >${TESTLOG}
 
-# Testcase 1 
-TEST_TITLE[1]="[Send json input data to server and get expected ID]"
-SETUP[1]="init_db1"
-CURL_CMD[1]=$(curl_cmd POST)
-OUTPUT_EXP[1]="{15}"
+# Testcase 1
+T_ID=1
+TEST_TITLE[${T_ID}]="[In inital empty DB, query assigned terminal IDs, receive {}]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET)
+OUTPUT_EXP[${T_ID}]="{}"
 
-# Testcase 2
-TEST_TITLE[2]="[Query an assigned terminal ID, get expected output data in jason]"
-SETUP[2]=""
-CURL_CMD[2]=$(curl_cmd GET 15)
-OUTPUT_EXP[2]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}"
+# Testcase 2 
+T_ID=2
+TEST_TITLE[${T_ID}]="[Send Visa input data to server, get expected ID]"
+SETUP[${T_ID}]="init_db1"
+CURL_CMD[${T_ID}]=$(curl_cmd POST1)
+OUTPUT_EXP[${T_ID}]="{15}"
 
-# Testcase 3
-TEST_TITLE[3]="[Query a non-exist terminal ID, get {} returned]"
-SETUP[3]=""
-CURL_CMD[3]=$(curl_cmd GET 35)
-OUTPUT_EXP[3]="{}"
+# Testcase 3 
+T_ID=3
+TEST_TITLE[${T_ID}]="[Query an assigned Visa terminal ID, get expected output data]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET 15)
+OUTPUT_EXP[${T_ID}]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}"
 
 # Testcase 4
-TEST_TITLE[4]="[Query all assigned terminal IDs, and get expected ID list]"
-SETUP[4]=""
-CURL_CMD[4]=$(curl_cmd GET)
-OUTPUT_EXP[4]="{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15}"
+T_ID=4
+TEST_TITLE[${T_ID}]="[Send EFTPOS input data to server, get expected ID]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd POST2)
+OUTPUT_EXP[${T_ID}]="{16}"
 
 # Testcase 5
-TEST_TITLE[5]="[When no available terminal ID to assign, send json input data to server and get {} returned]"
-SETUP[5]="init_db2"
-CURL_CMD[5]=$(curl_cmd POST)
-OUTPUT_EXP[5]="{}"
+T_ID=5
+TEST_TITLE[${T_ID}]="[Query an assigned EFTPOS terminal ID, get expected output data]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET 16)
+OUTPUT_EXP[${T_ID}]="{\"terminalID\":16,\"transactions\":{\"cardType\":\"EFTPOS\",\"TransactionType\":\"Savings\"}}"
+
+# Testcase 6
+T_ID=6
+TEST_TITLE[${T_ID}]="[Send MasterCard input data to server, get expected ID]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd POST3)
+OUTPUT_EXP[${T_ID}]="{17}"
+
+# Testcase 7
+T_ID=7
+TEST_TITLE[${T_ID}]="[Query an assigned MasterCard terminal ID, get expected output data]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET 17)
+OUTPUT_EXP[${T_ID}]="{\"terminalID\":17,\"transactions\":{\"cardType\":\"MasterCard\",\"TransactionType\":\"Credit\"}}"
+
+# Testcase 8
+T_ID=8
+TEST_TITLE[${T_ID}]="[Send typo json data \"BADTransactionType\" to server, receive nothing]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd POST1 BAD)
+OUTPUT_EXP[${T_ID}]=""
+
+# Testcase 9
+T_ID=9
+TEST_TITLE[${T_ID}]="[Send typo json data \"cardBADType\" to server, receive nothing]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd POST3 BAD)
+OUTPUT_EXP[${T_ID}]=""
+
+# Testcase 10
+T_ID=10
+TEST_TITLE[${T_ID}]="[Query all assigned terminal IDs, get expected ID list]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET)
+OUTPUT_EXP[${T_ID}]="{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17}"
+
+# Testcase 11
+T_ID=11
+TEST_TITLE[${T_ID}]="[Query a non-assigned terminal ID, receive {}]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET 35)
+OUTPUT_EXP[${T_ID}]="{}"
+
+# Testcase 12
+T_ID=12
+TEST_TITLE[${T_ID}]="[Query an out-of-range terminal ID, receive nothing]"
+SETUP[${T_ID}]=""
+CURL_CMD[${T_ID}]=$(curl_cmd GET -4)
+OUTPUT_EXP[${T_ID}]=""
+
+# Testcase 13
+T_ID=13
+TEST_TITLE[${T_ID}]="[When no available terminal ID, send json input data to server and receive {}]"
+SETUP[${T_ID}]="init_db2"
+CURL_CMD[${T_ID}]=$(curl_cmd POST2)
+OUTPUT_EXP[${T_ID}]="{}"
 
 declare -i success_t=0
 declare -i failure_t=0
-declare -i sum=5
+declare -i sum=13
 
 declare -i i=1
 
@@ -137,6 +236,8 @@ then
 else
 	MSG1="FAIL"
 fi
-SUM_MSG="\n-------------------------------\n${sum} Tests: ${success_t} Successes ${failure_t} Failures\n${MSG1}"
+SUM_MSG="\n--------------------------------\n${sum} Tests: ${success_t} Successes ${failure_t} Failures\n${MSG1}"
 
 echo -e ${SUM_MSG} |tee -a ${TESTLOG}
+
+echo -e "NOTE: Please see ${TESTLOG} for test details.\n"
