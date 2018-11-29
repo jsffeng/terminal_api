@@ -125,7 +125,7 @@ ubuntu->UTfuncs
 ./test/UTfuncs_ut.c:505:test_query_term_list2:PASS  
 ./test/UTfuncs_ut.c:525:test_struct2json:PASS  
   
------------------------
+  -----------------------
 26 Tests 0 Failures 0 Ignored  
 OK  
    
