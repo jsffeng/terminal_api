@@ -1,23 +1,81 @@
 #!/bin/bash 
 
-function init_db
+function init_db1
 {
-	for x in 1 2 3 4 5 6 7
+ 	declare -i i=0
+	while (( i < 14 ))
 	do
- 		curl -X POST  -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals
+        eval ${CMD[1]} >/dev/null 2>&1
+	if [[ $? != 0 ]]
+	then
+		echo "ERROR: curl failed to execute for Testcase${i},abort!"
+		exit 1
+	fi
+	((i=i+1))
 	done
 }
 
-function testcase
+function init_db2
 {
-	CMD=$1
-	EXP=$2
+ 	declare -i i=0
+	while (( i < 100 ))
+	do
+        eval ${CMD[1]} >/dev/null 2>&1
+	if [[ $? != 0 ]]
+	then
+		echo "ERROR: curl failed to execute for Testcase${i},abort!"
+		exit 1
+	fi
+	((i=i+1))
+	done
 }
 
-curl -X POST  -d 'json={"TransactionType":"Credit","cardType":"Visa"}' http://localhost:8888/terminals
+function run_testcase
+{
+	CMD=$1
+	OUTPUT_EXP=$2
+	TEST_TITLE=$3
+	TEST_NUM=$4
 
-curl -X GET http://localhost:8888/terminals/5
+	OUTPUT_RES=`eval ${CMD} 2>/dev/null`
+	echo "Testcase${TEST_NUM}:${CMD}" >>${TESTLOG}
+	echo "Output: ${OUTPUT_RES}" >>${TESTLOG}
+	if [[ ${OUTPUT_RES} == ${OUTPUT_EXP} ]]
+	then
+		echo "Testcase${TEST_NUM}:${TEST_TITLE}:PASS"
+	else
+		echo "Testcase${TEST_NUM}:${TEST_TITLE}:Failed"
+	fi
+}
 
-curl -X GET http://localhost:8888/terminals/15
 
-curl -X GET http://localhost:8888/terminals
+TESTLOG=./System_test.log
+>${TESTLOG}
+
+CMD[1]="curl -X POST  -d 'json={\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}' http://localhost:8888/terminals"
+CMD[2]="curl -X GET http://localhost:8888/terminals/15"
+CMD[3]="curl -X GET http://localhost:8888/terminals/35"
+CMD[4]="curl -X GET http://localhost:8888/terminals"
+
+TEST_TITLE[1]="[Send json input data to server and get expected ID]"
+TEST_TITLE[2]="[Query an assigned terminal ID, get expected output data in jason]"
+TEST_TITLE[3]="[Query a non-exist terminal ID, get {} returned]"
+TEST_TITLE[4]="[Query all assigned terminal IDs, and get expected ID list]"
+TEST_TITLE[5]="[When no available terminal ID to assign, send json input data to server and get {} returned]"
+
+OUTPUT_EXP[1]="{15}"
+OUTPUT_EXP[2]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}"
+OUTPUT_EXP[3]="{}"
+OUTPUT_EXP[4]="{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15}"
+OUTPUT_EXP[5]="{}"
+
+init_db1
+declare -i i=1
+while (( i <= 4 ))
+do
+	run_testcase  "${CMD[i]}" "${OUTPUT_EXP[i]}" "${TEST_TITLE[i]}" ${i}
+	((i=i+1))
+done
+
+init_db2
+run_testcase  "${CMD[1]}" "${OUTPUT_EXP[5]}" "${TEST_TITLE[5]}" 5
