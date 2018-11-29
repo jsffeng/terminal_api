@@ -111,7 +111,7 @@ void test_query_term_info4()
 *       term_info_ptr->transaction_type: "Credit"				*
 ********************************************************************************/
 
-void test_parse_json()
+void test_parse_json1()
 {
   char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
   struct terminal_info_struct term_db_entry_input={0,"","",0};
@@ -124,6 +124,83 @@ void test_parse_json()
   TEST_ASSERT_EQUAL_STRING (term_db_entry_expect.transaction_type, term_db_entry_input.transaction_type);
   
   TEST_ASSERT_EQUAL_MEMORY (&term_db_entry_expect, &term_db_entry_input, sizeof(struct terminal_info_struct));
+}
+
+/********************************************************************************
+* Input: lower case input {"cardtype":"Visa","transactiontype":"Credit"} 	*
+* Output: 								 	*
+*       term_info_ptr->card_type: "Visa" 					*
+*       term_info_ptr->transaction_type: "Credit"				*
+********************************************************************************/
+
+void test_parse_json2()
+{
+  char term_json_entry_input[]="{\"cardtype\":\"Visa\",\"transactiontype\":\"Credit\"}";
+  struct terminal_info_struct term_db_entry_input={0,"","",0};
+  struct terminal_info_struct term_db_entry_expect={0,"\"Visa\"","\"Credit\"",0};
+
+  TEST_ASSERT_EQUAL(0, parse_json(term_json_entry_input, &term_db_entry_input)); 
+
+  TEST_ASSERT_EQUAL_STRING (term_db_entry_expect.card_type, term_db_entry_input.card_type);
+
+  TEST_ASSERT_EQUAL_STRING (term_db_entry_expect.transaction_type, term_db_entry_input.transaction_type);
+  
+  TEST_ASSERT_EQUAL_MEMORY (&term_db_entry_expect, &term_db_entry_input, sizeof(struct terminal_info_struct));
+}
+
+/********************************************************************************
+* Input: NULL						 			*
+* Output: 								 	*
+*       non-zero return value							*
+********************************************************************************/
+
+void test_parse_json3()
+{
+  struct terminal_info_struct term_db_entry_input={0,"","",0};
+
+  TEST_ASSERT_NOT_EQUAL(0, parse_json((char *)NULL, &term_db_entry_input)); 
+}
+
+/********************************************************************************
+* Input: ""						 			*
+* Output: 								 	*
+*       non-zero return value							*
+********************************************************************************/
+
+void test_parse_json4()
+{
+  char term_json_entry_input[]="";
+  struct terminal_info_struct term_db_entry_input={0,"","",0};
+
+  TEST_ASSERT_NOT_EQUAL(0, parse_json(term_json_entry_input, &term_db_entry_input)); 
+}
+
+/********************************************************************************
+* Input: typo input {"ccardType":"Visa","TransactionType":"Credit"} 		*
+* Output: 								 	*
+*       non-zero return value							*
+********************************************************************************/
+
+void test_parse_json5()
+{
+  char term_json_entry_input[]="{\"ccardType\":\"Visa\",\"TransactionType\":\"Credit\"}";
+  struct terminal_info_struct term_db_entry_input={0,"","",0};
+
+  TEST_ASSERT_NOT_EQUAL(0, parse_json(term_json_entry_input, &term_db_entry_input)); 
+}
+
+/********************************************************************************
+* Input: typo input {"cardType":"Visa","TrransactionType":"Credit"} 		*
+* Output: 								 	*
+*       non-zero return value							*
+********************************************************************************/
+
+void test_parse_json6()
+{
+  char term_json_entry_input[]="{\"cardType\":\"Visa\",\"TrransactionType\":\"Credit\"}";
+  struct terminal_info_struct term_db_entry_input={0,"","",0};
+
+  TEST_ASSERT_NOT_EQUAL(0, parse_json(term_json_entry_input, &term_db_entry_input)); 
 }
 
 /********************************************************************************
