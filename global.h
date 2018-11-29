@@ -42,6 +42,7 @@ in UT test*/
 #define GET 0
 #define POST 1
 
+/* Need to change it to official path for real use */
 #define LOGFILE "./ERR.log"
 
 FILE *errlog;
