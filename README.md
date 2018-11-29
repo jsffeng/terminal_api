@@ -125,7 +125,7 @@ ubuntu->UTfuncs
 ./test/UTfuncs_ut.c:505:test_query_term_list2:PASS  
 ./test/UTfuncs_ut.c:525:test_struct2json:PASS  
   
-~-----------------------
+~-----------------------  
 26 Tests 0 Failures 0 Ignored  
 OK  
    
@@ -153,7 +153,7 @@ Testcase11:[Query a non-assigned terminal ID, receive {}]:PASS
 Testcase12:[Query an out-of-range terminal ID, receive nothing]:PASS  
 Testcase13:[When no available terminal ID, send json input data to server and receive {}]:PASS  
 
-~--------------------------------
+~--------------------------------  
 13 Tests: 13 Successes 0 Failures  
 OK  
 NOTE: Please see ./System_test.log for test details.  
