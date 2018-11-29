@@ -206,10 +206,22 @@ int parse_json(char * p_msg, struct terminal_info_struct *term_info_ptr)
 
   /* Extract cardType */ 
   p_sub = cJSON_GetObjectItem(p_json, "cardType");
+  if( p_sub == NULL )
+  {
+    ERRLOG ("failure in cJSON_Parse().");
+    return 1;
+  }
+
   snprintf (term_info_ptr->card_type, CARD_NAME_LENGTH , "%s", cJSON_Print(p_sub));
  
   /* Extract TransactionType */ 
   p_sub = cJSON_GetObjectItem(p_json, "TransactionType");
+  if( p_sub == NULL )
+  {
+    ERRLOG ("failure in cJSON_Parse().");
+    return 1;
+  }
+
   snprintf (term_info_ptr->transaction_type, TRANS_NAME_LENGTH , "%s", cJSON_Print(p_sub));
 
   cJSON_Delete(p_json);
