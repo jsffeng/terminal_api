@@ -2,80 +2,141 @@
 
 function init_db1
 {
+	INIT_CMD=$(curl_cmd POST)
+
  	declare -i i=0
 	while (( i < 14 ))
 	do
-        eval ${CMD[1]} >/dev/null 2>&1
-	if [[ $? != 0 ]]
-	then
-		echo "ERROR: curl failed to execute for Testcase${i},abort!"
-		exit 1
-	fi
-	((i=i+1))
+	        eval ${INIT_CMD} >/dev/null 2>&1
+		if [[ $? != 0 ]]
+		then
+			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
+			exit 1
+		fi
+		((i=i+1))
 	done
 }
 
 function init_db2
 {
+	INIT_CMD=$(curl_cmd POST)
+
  	declare -i i=0
 	while (( i < 100 ))
 	do
-        eval ${CMD[1]} >/dev/null 2>&1
-	if [[ $? != 0 ]]
-	then
-		echo "ERROR: curl failed to execute for Testcase${i},abort!"
-		exit 1
-	fi
-	((i=i+1))
+	        eval ${INIT_CMD} >/dev/null 2>&1
+		if [[ $? != 0 ]]
+		then
+			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
+			exit 1
+		fi
+		((i=i+1))
 	done
 }
 
 function run_testcase
 {
-	CMD=$1
-	OUTPUT_EXP=$2
-	TEST_TITLE=$3
-	TEST_NUM=$4
+	SETUP=$1
+	CMD=$2
+	OUTPUT_EXP=$3
+	TEST_TITLE=$4
+	TEST_NUM=$5
+
+	[[ ! -z ${SETUP} ]]  && eval ${SETUP}
+
+	echo -e "Testcase${TEST_NUM}:\n==========" >>${TESTLOG}
+	echo -e "Title: \t\t${TEST_TITLE}" >>${TESTLOG}
+	echo -e "Commmand: \t${CMD}" >>${TESTLOG}
 
 	OUTPUT_RES=`eval ${CMD} 2>/dev/null`
-	echo "Testcase${TEST_NUM}:${CMD}" >>${TESTLOG}
-	echo "Output: ${OUTPUT_RES}" >>${TESTLOG}
+
+	echo -e "Recieved: \t${OUTPUT_RES}" >>${TESTLOG}
 	if [[ ${OUTPUT_RES} == ${OUTPUT_EXP} ]]
 	then
+		((success_t=success_t+1))
 		echo "Testcase${TEST_NUM}:${TEST_TITLE}:PASS"
+		echo -e "Result: \tPASS\n" >>${TESTLOG}
 	else
+		((failure_t=failure_t+1))
 		echo "Testcase${TEST_NUM}:${TEST_TITLE}:Failed"
+		echo -e "Result: \tFailed\n" >>${TESTLOG}
 	fi
 }
 
+function curl_cmd
+{
+	CURL_CMD=""
+	if [[ $1 == POST ]]
+	then
+		CURL_CMD="curl -X POST  -d 'json={\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}' http://localhost:8888/terminals"
+	elif [[ $1 == GET ]]
+	then
+		if [[ -z $2 ]]
+		then
+			CURL_CMD="curl -X GET http://localhost:8888/terminals"
+		else
+			CURL_CMD="curl -X GET http://localhost:8888/terminals/{$2}"
+		fi
+	else
+		exit 1
+	fi
+
+	echo "${CURL_CMD}"
+}
 
 TESTLOG=./System_test.log
 >${TESTLOG}
 
-CMD[1]="curl -X POST  -d 'json={\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}' http://localhost:8888/terminals"
-CMD[2]="curl -X GET http://localhost:8888/terminals/15"
-CMD[3]="curl -X GET http://localhost:8888/terminals/35"
-CMD[4]="curl -X GET http://localhost:8888/terminals"
-
+# Testcase 1 
 TEST_TITLE[1]="[Send json input data to server and get expected ID]"
-TEST_TITLE[2]="[Query an assigned terminal ID, get expected output data in jason]"
-TEST_TITLE[3]="[Query a non-exist terminal ID, get {} returned]"
-TEST_TITLE[4]="[Query all assigned terminal IDs, and get expected ID list]"
-TEST_TITLE[5]="[When no available terminal ID to assign, send json input data to server and get {} returned]"
-
+SETUP[1]="init_db1"
+CURL_CMD[1]=$(curl_cmd POST)
 OUTPUT_EXP[1]="{15}"
+
+# Testcase 2
+TEST_TITLE[2]="[Query an assigned terminal ID, get expected output data in jason]"
+SETUP[2]=""
+CURL_CMD[2]=$(curl_cmd GET 15)
 OUTPUT_EXP[2]="{\"terminalID\":15,\"transactions\":{\"cardType\":\"Visa\",\"TransactionType\":\"Credit\"}}"
+
+# Testcase 3
+TEST_TITLE[3]="[Query a non-exist terminal ID, get {} returned]"
+SETUP[3]=""
+CURL_CMD[3]=$(curl_cmd GET 35)
 OUTPUT_EXP[3]="{}"
+
+# Testcase 4
+TEST_TITLE[4]="[Query all assigned terminal IDs, and get expected ID list]"
+SETUP[4]=""
+CURL_CMD[4]=$(curl_cmd GET)
 OUTPUT_EXP[4]="{1 2 3 4 5 6 7 8 9 10 11 12 13 14 15}"
+
+# Testcase 5
+TEST_TITLE[5]="[When no available terminal ID to assign, send json input data to server and get {} returned]"
+SETUP[5]="init_db2"
+CURL_CMD[5]=$(curl_cmd POST)
 OUTPUT_EXP[5]="{}"
 
-init_db1
+declare -i success_t=0
+declare -i failure_t=0
+declare -i sum=5
+
 declare -i i=1
-while (( i <= 4 ))
+
+#../term_api & 
+
+while (( i <= sum ))
 do
-	run_testcase  "${CMD[i]}" "${OUTPUT_EXP[i]}" "${TEST_TITLE[i]}" ${i}
+	run_testcase "${SETUP[i]}" "${CURL_CMD[i]}" "${OUTPUT_EXP[i]}" "${TEST_TITLE[i]}" ${i}
 	((i=i+1))
 done
 
-init_db2
-run_testcase  "${CMD[1]}" "${OUTPUT_EXP[5]}" "${TEST_TITLE[5]}" 5
+if [[ ${success_t} == ${sum} && ${failure_t} == 0 ]]
+then
+	MSG1="OK"
+else
+	MSG1="FAIL"
+fi
+SUM_MSG="\n-------------------------------\n${sum} Tests: ${success_t} Successes ${failure_t} Failures\n${MSG1}"
+
+echo -e ${SUM_MSG} |tee -a ${TESTLOG}
