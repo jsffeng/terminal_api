@@ -62,7 +62,6 @@ sudo apt install libmicrohttpd-dev
 sudo apt install curl  
 complied and install cJSON  
 download cmock from  https://github.com/ThrowTheSwitch/CMock   
-sudo apt install expect
 
 Source list:  
 ------------------------- 
