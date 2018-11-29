@@ -83,8 +83,8 @@ clean_all: clean_build clean_test
 
 clean_test:
 	$(RM) $(MOCKS_DIR)
-	$(RM) $(TEST_OBJS) $(TEST_DIR)/$(TEST_TARGET) $(C_RUN)
+	$(RM) $(TEST_OBJS) $(TEST_DIR)/$(TEST_TARGET) $(C_RUN) $(TEST_DIR)/*.log
 
 clean_build: 
-	$(RM) $(OBJS) $(TARGET)
+	$(RM) $(OBJS) $(TARGET) *.log
 
