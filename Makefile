@@ -55,7 +55,7 @@ TEST_CFLAGS += $(foreach dir, $(TEST_INCLUDE_PATH), -I$(dir))
 LDFLAGS += $(foreach lib, $(LIBRARY_PATH), -L$(lib))
 LIBFLAGS += $(foreach lib, $(LIBS), -l$(lib))
 
-.PHONY: clean_all
+.PHONY: BLD UT mock clean_all clean_test clean_build
 
 all: BLD UT
 
