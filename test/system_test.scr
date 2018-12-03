@@ -36,15 +36,15 @@ function curl_cmd
 
 		if [[ $1 == POST1 ]]
 		then
-			# When $2 not empty, means bad data
+			# When $2 not empty, means bad input data
 			POST_JSON="json={\"cardType\":\"Visa\",\"${2}TransactionType\":\"Credit\"}"
 		elif [[ $1 == POST2 ]]
 		then
-			# When $2 not empty, means bad data
+			# When $2 not empty, means bad input data
 			POST_JSON="json={\"${2}cardType\":\"EFTPOS\",\"TransactionType\":\"Savings\"}"
 		else
 		# POST3
-			# When $2 not empty, means bad data
+			# When $2 not empty, means bad input data
 			POST_JSON="json={\"card${2}Type\":\"MasterCard\",\"TransactionType\":\"Credit\"}"
 		fi
 
@@ -195,8 +195,6 @@ declare -i failure_t=0
 declare -i sum=13
 
 declare -i i=1
-
-#../term_api & 
 
 while (( i <= sum ))
 do
