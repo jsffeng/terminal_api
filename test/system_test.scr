@@ -1,10 +1,11 @@
 #!/bin/bash 
 
-function init_db1
+function init_db
 {
+ 	declare -i INIT_NUM=$1
  	declare -i i=0
 
-	while (( i < 14 ))
+	while (( i < INIT_NUM ))
 	do
 		if (( i%3 == 0))
 		then
@@ -21,33 +22,6 @@ function init_db1
 		then
 			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
 			exit 1
-		fi
-
-		((i=i+1))
-	done
-}
-
-function init_db2
-{
- 	declare -i i=0
-	while (( i < 100 ))
-	do
-		if (( i%3 == 0))
-		then
-			INIT_CMD=$(curl_cmd POST1)
-		elif ((i%3 == 1))
-		then
-			INIT_CMD=$(curl_cmd POST2)
-		else
-			INIT_CMD=$(curl_cmd POST3)
-		fi
-
-	        eval ${INIT_CMD} >/dev/null 2>&1
-		if [[ $? != 0 ]]
-		then
-			echo "ERROR: curl failed to execute for Testcase${i},abort!" |tee -a ${TESTLOG}
-			exit 1
-
 		fi
 
 		((i=i+1))
@@ -135,7 +109,7 @@ OUTPUT_EXP[${T_ID}]="{}"
 # Testcase 2 
 T_ID=2
 TEST_TITLE[${T_ID}]="[Send Visa input data to server, get expected ID]"
-SETUP[${T_ID}]="init_db1"
+SETUP[${T_ID}]="init_db 14"
 CURL_CMD[${T_ID}]=$(curl_cmd POST1)
 OUTPUT_EXP[${T_ID}]="{15}"
 
@@ -212,7 +186,7 @@ OUTPUT_EXP[${T_ID}]=""
 # Testcase 13
 T_ID=13
 TEST_TITLE[${T_ID}]="[When no available terminal ID, send json input data to server and receive {}]"
-SETUP[${T_ID}]="init_db2"
+SETUP[${T_ID}]="init_db 100"
 CURL_CMD[${T_ID}]=$(curl_cmd POST2)
 OUTPUT_EXP[${T_ID}]="{}"
 
