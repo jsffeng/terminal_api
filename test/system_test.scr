@@ -185,7 +185,7 @@ OUTPUT_EXP[${T_ID}]=""
 
 # Testcase 13
 T_ID=13
-TEST_TITLE[${T_ID}]="[When no available terminal ID, send json input data to server and receive {}]"
+TEST_TITLE[${T_ID}]="[When running out of terminal ID slot, send json input data to server and receive {}]"
 SETUP[${T_ID}]="init_db 100"
 CURL_CMD[${T_ID}]=$(curl_cmd POST2)
 OUTPUT_EXP[${T_ID}]="{}"
