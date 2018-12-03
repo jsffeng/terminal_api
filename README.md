@@ -151,7 +151,8 @@ Testcase9:[Send typo json data "cardBADType" to server, receive nothing]:PASS
 Testcase10:[Query all assigned terminal IDs, get expected ID list]:PASS  
 Testcase11:[Query a non-assigned terminal ID, receive {}]:PASS  
 Testcase12:[Query an out-of-range terminal ID, receive nothing]:PASS  
-Testcase13:[When no available terminal ID, send json input data to server and receive {}]:PASS  
+Testcase13:[When running out of terminal ID slot, send json input data to server and receive {}]:PASS  
+
 
 ~--------------------------------  
 13 Tests: 13 Successes 0 Failures  
