@@ -56,7 +56,7 @@ Linux Version: ubuntu 16.04.01
 libmicrohttpd version: 0.9.44 (re-run "sudo apt install libmicrohttpd-dev" can see it)  
 cJSON Libarary - clone & complied from https://github.com/DaveGamble/cJSON on Nov 20, 2018.
 
-Install packages:
+Dependent packages:
 ----------------  
 sudo apt install libmicrohttpd-dev  
 sudo apt install curl  
