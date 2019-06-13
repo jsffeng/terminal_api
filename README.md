@@ -1,4 +1,4 @@
-A RESTful API server to handle client/terminal request as belows: 
+A RESTful API server described to handle client/terminal request as below: 
 -----------------------------------------------------------------  
 1. When client sends POST request as the following command does:  
 curl -X POST -d ‘json={"cardType":"Visa","TransactionType":"Credit"}’ http://localhost:8888/terminals  
@@ -7,7 +7,7 @@ Server service should take the following actions:
   - If above succeeds, return the terminal ID, e.g. {16}, to client.  
   - If there is no available terminal ID to assign, return {}, which means the system is running on the maximum capacity designed.  
   - Returning empty to client means abnormal error happens on server side.  
-NOTE:Input data in JSON format:   
+NOTE - Input data in JSON format:   
 {   
         “cardType”: [  
         “Visa”,  
@@ -28,7 +28,7 @@ Server service should take the following actions:
 	{"terminalID":15,"transactions":{"cardType":"Visa","TransactionType":"Credit"}}
   - If no Data Entry exists, just return {} to client.  
   - Returning empty to client means abnormal error happens on server side.  
-NOTE:Output data in JSON format:   
+NOTE - Output data in JSON format:   
 {  
      "terminalID": 1,  
      "transactions": [  
@@ -80,7 +80,7 @@ test/system_test.scr
 
 make commands:  
 --------------  
-Run make commmand in current directory.  
+Run make command in current directory.  
 make BLD : create final executable "term_api".  
 make UT: create executable "UTfuncs" under test directory for unit testing.  
 make clean_all: clean up generated sources(by cmock) and all binaries in current directory and test directory.  
@@ -139,7 +139,7 @@ ubuntu->../term_api
 In another terminal window, run automate system testing script under test directory and verify the result.  
 ubuntu->cd test  
 ubuntu->system_test.scr  
-Testcase1:[In inital empty DB, query assigned terminal IDs, receive {}]:PASS  
+Testcase1:[In initial empty DB, query assigned terminal IDs, receive {}]:PASS  
 Testcase2:[Send Visa input data to server, get expected ID]:PASS  
 Testcase3:[Query an assigned Visa terminal ID, get expected output data]:PASS  
 Testcase4:[Send EFTPOS input data to server, get expected ID]:PASS  

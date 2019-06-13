@@ -133,12 +133,12 @@ query_term_info (int id, char *term_info)
 * Respond all assigned terminal IDs in DB.		 		*
 *									*
 * Parameter examples:							*
-* 	if found, term_list popluated, e.g. "{2 4 5 10}"		*
-* 	if not found, term_list popluated as "{}"			*
+* 	if found, term_list populated, e.g. "{2 4 5 10}"		*
+* 	if not found, term_list populated as "{}"			*
 *									*
 * Return values:							*
 * 	if succeeds, return 0						*
-* 	if abormal error, return 1 (not used so far)			*
+* 	if abnormal error, return 1 (not used so far)			*
 ************************************************************************/
 
 int
@@ -247,7 +247,7 @@ int parse_json(char * p_msg, struct terminal_info_struct *term_info_ptr)
 *	    {"cardType":"Visa","TransactionType":"Credit"}}		*
 * Return values:							*
 * 	if succeeds, return 0						*
-* 	if abormal error, return 1 (not used so far)			*
+* 	if abnormal error, return 1 (not used so far)			*
 ************************************************************************/
 int
 struct2json(struct terminal_info_struct *tm_db_ptr, char tm_json[])

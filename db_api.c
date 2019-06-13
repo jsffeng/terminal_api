@@ -39,14 +39,14 @@ find_spare_id(int *id_ptr)
 }  
 
 /************************************************************************
-* Insert an entry to global arrary gl_terminal_info[MAXTERMID]		*
+* Insert an entry to global array gl_terminal_info[MAXTERMID]		*
 * return 								*
 * Return values:							*
 * 	if inserted, return 0						*
 * 	if no available terminal ID slot (equal to DB slot in this 	*
 *	design), 							*
 *	return 1							*
-*	abnormal error, return 2 (Not being used currenlty )		*
+*	abnormal error, return 2 (Not being used currently )		*
 ************************************************************************/
 int
 insert_db(struct terminal_info_struct *terminal_info_ptr)
@@ -96,7 +96,7 @@ init_db()
 
 /* return 0, id found in DB */
 /* return 1, id no found in DB , this could happen when client send a wrong id */
-/* return 2, abormal errors when query DB */
+/* return 2, abnormal errors when query DB */
 int
 query_db(int id, struct terminal_info_struct *tm_db_ptr)
 {

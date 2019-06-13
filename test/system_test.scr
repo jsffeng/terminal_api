@@ -101,7 +101,7 @@ TESTLOG=./System_test.log
 
 # Testcase 1
 T_ID=1
-TEST_TITLE[${T_ID}]="[In inital empty DB, query assigned terminal IDs, receive {}]"
+TEST_TITLE[${T_ID}]="[In initial empty DB, query assigned terminal IDs, receive {}]"
 SETUP[${T_ID}]=""
 CURL_CMD[${T_ID}]=$(curl_cmd GET)
 OUTPUT_EXP[${T_ID}]="{}"
