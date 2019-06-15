@@ -58,10 +58,10 @@ cJSON Libarary - clone & complied from https://github.com/DaveGamble/cJSON on No
 
 Dependent packages:
 ----------------  
-sudo apt install libmicrohttpd-dev  
-sudo apt install curl  
-complied and install cJSON  
-download cmock from  https://github.com/ThrowTheSwitch/CMock   
+libmicrohttpd: sudo apt install libmicrohttpd-dev  
+curl: sudo apt install curl  
+cJSON: complied and install cJSON  
+cmock: download cmock from  https://github.com/ThrowTheSwitch/CMock   
 
 Source list:  
 ------------  
